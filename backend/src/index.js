@@ -26,7 +26,7 @@ app.get("/healthz", (req, res) => res.json({ ok: true, service: "backend" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   console.error(err);
   res.status(500).json({ message: "Internal server error" });
 });
