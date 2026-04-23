@@ -12,9 +12,9 @@ resources:
   - frontend.yaml
   - ingress.yaml
 images:
-  - name: YOUR_DOCKERHUB_USERNAME/ai-task-backend
+  - name: rorabo/ai-task-backend
     newTag: latest
-  - name: YOUR_DOCKERHUB_USERNAME/ai-task-worker
+  - name: rorabo/ai-task-worker
     newTag: latest
-  - name: YOUR_DOCKERHUB_USERNAME/ai-task-frontend
+  - name: rorabo/ai-task-frontend
     newTag: latest

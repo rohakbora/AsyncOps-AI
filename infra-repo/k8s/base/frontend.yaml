@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: YOUR_DOCKERHUB_USERNAME/ai-task-frontend:latest
+          image: rorabo/ai-task-frontend:latest
           ports:
             - containerPort: 8080
           resources:

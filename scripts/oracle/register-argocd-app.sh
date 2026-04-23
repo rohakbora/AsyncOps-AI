@@ -14,6 +14,7 @@ trap cleanup EXIT
 
 sed \
   -e "s#https://github.com/YOUR_USERNAME/YOUR_INFRA_REPO.git#${REPO_URL}#g" \
+  -e "s#https://github.com/rohakbora/AsyncOps-AI.git#${REPO_URL}#g" \
   -e "s#targetRevision: main#targetRevision: ${TARGET_REVISION}#g" \
   "$SOURCE_MANIFEST" > "$TMP_MANIFEST"
 

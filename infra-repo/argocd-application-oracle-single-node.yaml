@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/YOUR_USERNAME/YOUR_INFRA_REPO.git
+    repoURL: https://github.com/rohakbora/AsyncOps-AI.git
     targetRevision: main
     path: k8s/overlays/oracle-single-node
   destination:

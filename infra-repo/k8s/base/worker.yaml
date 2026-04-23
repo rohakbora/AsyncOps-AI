@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: worker
-          image: YOUR_DOCKERHUB_USERNAME/ai-task-worker:latest
+          image: rorabo/ai-task-worker:latest
           env:
             - name: MONGO_URI
               valueFrom:

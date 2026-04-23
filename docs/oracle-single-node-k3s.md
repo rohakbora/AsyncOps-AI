@@ -56,17 +56,16 @@ Update these files:
 - `infra-repo/k8s/base/kustomization.yaml`
 - `infra-repo/argocd-application-oracle-single-node.yaml`
 
-Replace:
+Replace or rotate as needed:
 
-- `YOUR_DOCKERHUB_USERNAME`
-- `YOUR_USERNAME/YOUR_INFRA_REPO`
+- `JWT_SECRET` in `infra-repo/k8s/base/secret.yaml`
 
 For monorepo GitOps, `repoURL` should be the GitHub URL of this same repo.
 
 Example:
 
 ```yaml
-repoURL: https://github.com/your-user/ai-task-platform.git
+repoURL: https://github.com/rohakbora/AsyncOps-AI.git
 ```
 
 ## 5. Configure GitHub Secrets
@@ -77,6 +76,8 @@ In GitHub repository settings, add:
 - `DOCKERHUB_TOKEN`
 
 Then push to `main` once so CI can publish multi-arch images for both `amd64` and `arm64`.
+
+If the repo will be public, rotate the JWT secret before sharing or move it out of Git.
 
 ## 6. Bootstrap The VM
 
@@ -90,8 +91,8 @@ sudo apt-get install -y git curl ca-certificates
 Clone the repo:
 
 ```bash
-git clone https://github.com/your-user/your-repo.git
-cd your-repo
+git clone https://github.com/rohakbora/AsyncOps-AI.git
+cd AsyncOps-AI
 ```
 
 Install k3s:
@@ -160,7 +161,7 @@ Or use the helper script:
 
 ```bash
 chmod +x scripts/oracle/register-argocd-app.sh
-REPO_URL=https://github.com/your-user/your-repo.git \
+REPO_URL=https://github.com/rohakbora/AsyncOps-AI.git \
 ./scripts/oracle/register-argocd-app.sh
 ```
 
