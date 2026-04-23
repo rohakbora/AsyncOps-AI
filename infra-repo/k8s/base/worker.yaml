@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: ai-task-platform
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: worker
+          image: YOUR_DOCKERHUB_USERNAME/ai-task-worker:latest
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: ai-task-secret
+                  key: MONGO_URI
+            - name: MONGO_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: ai-task-config
+                  key: MONGO_DB_NAME
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: ai-task-config
+                  key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: ai-task-config
+                  key: REDIS_PORT
+            - name: REDIS_QUEUE_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: ai-task-config
+                  key: REDIS_QUEUE_KEY
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pgrep -f worker.py
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pgrep -f worker.py
+            initialDelaySeconds: 10
+            periodSeconds: 15

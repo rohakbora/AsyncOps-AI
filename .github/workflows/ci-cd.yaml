@@ -1,0 +1,84 @@
+name: CI-CD
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+      - name: Lint backend
+        run: npm run lint
+        working-directory: backend
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+      - name: Lint frontend
+        run: npm run lint
+        working-directory: frontend
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: lint
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Docker login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set short SHA
+        id: vars
+        run: echo "sha_short=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ai-task-backend:${{ steps.vars.outputs.sha_short }}
+
+      - name: Build and push worker
+        uses: docker/build-push-action@v6
+        with:
+          context: ./worker
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ai-task-worker:${{ steps.vars.outputs.sha_short }}
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ai-task-frontend:${{ steps.vars.outputs.sha_short }}
+
+      - name: Update kustomization tags
+        run: |
+          sed -i "s/newTag: .*/newTag: ${{ steps.vars.outputs.sha_short }}/g" infra-repo/k8s/base/kustomization.yaml
+
+      - name: Commit infra update
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add infra-repo/k8s/base/kustomization.yaml
+          git commit -m "chore: update image tags to ${{ steps.vars.outputs.sha_short }}" || echo "No changes"
+          git push
